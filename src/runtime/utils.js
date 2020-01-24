@@ -1,5 +1,4 @@
 const Refresh = require('react-refresh/runtime');
-const ErrorOverlay = require('../overlay');
 
 /**
  * Extracts exports from a webpack module object.
@@ -68,25 +67,12 @@ function createHotDisposeCallback(module) {
  */
 function createHotErrorHandler(moduleId) {
   /**
-   * An error handler to show a module evaluation error with an error overlay.
-   * @param {Error} error An error occurred during evaluation of a module.
-   * @returns {void}
-   */
-  function hotErrorHandler(error) {
-    ErrorOverlay.handleRuntimeError(error);
-  }
-
-  /**
    * An error handler to allow self-recovering behaviours.
-   * @param {Error} error An error occurred during evaluation of a module.
    * @returns {void}
    */
-  function selfAcceptingHotErrorHandler(error) {
-    hotErrorHandler(error);
+  return function hotErrorHandler() {
     require.cache[moduleId].hot.accept(hotErrorHandler);
-  }
-
-  return selfAcceptingHotErrorHandler;
+  };
 }
 
 /**
@@ -109,7 +95,6 @@ function createDebounceUpdate() {
       refreshTimeout = setTimeout(function() {
         refreshTimeout = undefined;
         Refresh.performReactRefresh();
-        ErrorOverlay.clearRuntimeErrors();
       }, 30);
     }
   }
